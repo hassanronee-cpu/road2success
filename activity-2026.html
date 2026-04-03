@@ -18,7 +18,7 @@
     background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
     background-attachment: fixed; /* স্ক্রল করার সময় ব্যাকগ্রাউন্ড স্থির থাকবে */ }
         .score-box-floating {
-            position: fixed; bottom: 150px; left: 20px; z-index: 9999;
+            position: fixed; bottom: 100px; left: 20px; z-index: 9999;
             background: linear-gradient(135deg, #064e3b 0%, #166534 100%);
             color: white; padding: 12px 20px; border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
@@ -75,12 +75,12 @@ body { padding-bottom: 100px; }
 .report-btn-floating:hover { background: #1e40af; transform: scale(1.05); }
 .save-btn-floating {
     /* নিচের বার থেকে নিরাপদ দূরত্ব + আপনার কাস্টম গ্যাপ */
-    bottom: calc(150px + env(safe-area-inset-bottom)); 
+    bottom: calc(100px + env(safe-area-inset-bottom)); 
 }
 
 .report-btn-floating {
     /* সেভ বাটন যদি নিচে থাকে, তবে তার থেকে ৮০px উপরে */
-    bottom: calc(230px + env(safe-area-inset-bottom));
+    bottom: calc(180px + env(safe-area-inset-bottom));
 }
 .floating-btn-common {
     position: fixed;
