@@ -2,21 +2,41 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>আলোর কাফেলা | ড্যাশবোর্ড</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%2250%%22 text-anchor=%22middle%22 font-size=%2280%22>🌙</text></svg>">    
-    <style>
-        body { font-family: 'Hind Siliguri', sans-serif; overflow: hidden; }
-        /* আইফ্রেমের হাইট ফিক্স করা */
-        .content-frame {
-            width: 100%;
-            height: calc(100vh - 64px); /* ৬৪ পিক্সেল হলো নেভিগেশন বারের উচ্চতা */
-            border: none;
-        }
-    </style>
-</head>
+<style>
+    body { 
+        font-family: 'Hind Siliguri', sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        overflow: hidden; /* পুরো বডিতে স্ক্রল বন্ধ */
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* নেভিগেশন বারকে ফিক্সড রাখা */
+    nav {
+        flex-shrink: 0; /* যেন হাইট কমে না যায় */
+        height: 64px;
+        width: 100%;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1000;
+    }
+
+    /* আইফ্রেম এখন বাকি পুরো জায়গা জুড়ে থাকবে */
+    .content-frame {
+        flex-grow: 1; /* বাকি সবটুকু জায়গা নেবে */
+        width: 100%;
+        height: 100%; 
+        border: none;
+    }
+</style></head>
 <body class="bg-slate-50">
 
     <nav class="bg-white border-b shadow-sm h-16 flex items-center z-50 relative">
@@ -42,13 +62,18 @@
             document.getElementById('mainFrame').src = pageUrl;
         }
 
-        // যোগাযোগ সেকশনে যাওয়ার জন্য নতুন ফাংশন
-        function goToContact() {
-            const frame = document.getElementById('mainFrame');
-            // প্রথমে নিশ্চিত হওয়া যে হোম পেজ লোড আছে, তারপর ওই আইডির লোকেশনে পাঠানো
-            frame.src = "home.html#contact";
-        }
+function goToContact() {
+    const frame = document.getElementById('mainFrame');
     
+    // চেক করা হচ্ছে বর্তমানে হোম পেজেই আছে কি না
+    if (frame.src.includes("home.html")) {
+        // যদি হোম পেজে থাকে, তবে আইফ্রেমের ভেতরে ওই আইডিতে স্ক্রল করাবে
+        frame.contentWindow.location.replace("home.html#contact");
+    } else {
+        // যদি অন্য পেজে থাকে, তবে হোম পেজে নিয়ে যাবে
+        frame.src = "home.html#contact";
+    }
+}
         // ব্রাউজারের ব্যাক বাটন হ্যান্ডেল করার জন্য ছোট একটি ট্রিক
         window.onpopstate = function() {
             const frame = document.getElementById('mainFrame');
