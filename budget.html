@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="bn">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আলোর কাফেলা | স্মার্ট বাজেট ২০২৬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f0fdf4; }
+        .glass-card { background: white; border-radius: 24px; border: 1px solid #dcfce7; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .btn-green { background: #16a34a; color: white; transition: 0.3s; font-weight: bold; border-radius: 16px; }
+        .btn-green:hover { background: #15803d; transform: translateY(-1px); }
+        .input-box { width: 100%; padding: 14px; border-radius: 16px; border: 1px solid #bbf7d0; outline: none; transition: 0.3s; }
+        .input-box:focus { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1); }
+        .active-tab { background: #16a34a !important; color: white !important; }
+        .progress-bar { height: 14px; border-radius: 20px; background: #f0fdf4; overflow: hidden; border: 1px solid #dcfce7; }
+        .sync-loader { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* সিঙ্ক বাটনকে নিচে ফিক্স করার জন্য */
+.sync-btn-floating {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    z-index: 9999;
+    background: green; /* হালকা সবুজ ব্যাকগ্রাউন্ড */
+    border: 2px solid #10b981;
+    color: #065f46;
+    padding: 5px 4px;
+    border-radius: 50px; /* পিল শেপ */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.sync-btn-floating:hover {
+    background: #10b981;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* মোবাইল স্ক্রিনে যাতে সেভ বাটনের সাথে সংঘর্ষ না হয় সেজন্য বডিতে প্যাডিং */
+body { padding-bottom: 80px; }
+/* মোবাইল ব্রাউজারের নিচের বারের জন্য সেফ এরিয়া এবং প্যাডিং */
+body { 
+    padding-bottom: 120px; /* নিচের বাটনের জন্য পর্যাপ্ত জায়গা রাখা */
+    min-height: -webkit-fill-available;
+}
+
+.sync-btn-floating {
+    position: fixed;
+    /* calc ব্যবহার করে নিচের বার থেকে নিরাপদ দূরত্ব বজায় রাখা */
+    bottom: calc(25px + env(safe-area-inset-bottom)); 
+    right: 20px;
+    z-index: 9999;
+    background: #10b981; /* সলিড গ্রিন */
+    border: 2px solid #ffffff;
+    color: white;
+    width: 56px; /* গোল বাটন হলে দেখতে ভালো লাগে */
+    height: 56px;
+    border-radius: 50%; /* পুরোপুরি গোল */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+/* যদি বাটনটি সেভ বাটনের উপরে রাখতে চান */
+/* সেভ বাটন যদি অন্য কোডে থাকে, তবে এটির bottom বাড়িয়ে ১০০px করে দিন */
+    </style>
+</head>
+<script src="security.js"></script>
+<body class="pb-10">
+    <main class="max-w-7xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4">
+            <div class="glass-card p-6 border-t-8 border-emerald-600 sticky top-18">
+                <div class="flex bg-emerald-50 p-1 rounded-2xl mb-6">
+                    <button onclick="setMode('expense')" id="modeExp" class="flex-1 py-3 rounded-xl font-bold text-sm active-tab">খরচ (Expense)</button>
+                    <button onclick="setMode('adjustment')" id="modeAdj" class="flex-1 py-3 rounded-xl font-bold text-sm text-emerald-700">সংশোধন (Adjustment)</button>
+                </div>
+
+                <div class="space-y-4">
+                    <input type="date" id="date" class="input-box">
+                    
+                    <div id="expenseFields" class="space-y-4">
+                        <select id="mainCat" onchange="updateSubCategories()" class="input-box">
+                            <option value="">মূল খাত বেছে নিন</option>
+                            <option value="Installment">Installment (কিস্তি)</option>
+                            <option value="Homeland">Homeland (গ্রামের বাড়ি)</option>
+                            <option value="Residential">Residential (বাসস্থান)</option>
+                            <option value="Sustenance">Sustenance (খাদ্য)</option>
+                            <option value="Transport">Transport (যাতায়াত)</option>
+                            <option value="Charity">Charity (সদাকাহ)</option>
+                            <option value="Essential">Essential (প্রয়োজনীয়)</option>
+                            <option value="Emergency">Emergency (জরুরি)</option>
+                            <option value="Refreshment">Refreshment (বিনোদন)</option>
+                            <option value="Savings">Savings (সঞ্চয়)</option>
+                        </select>
+                        <select id="subCat" onchange="checkOthers(this.value)" class="input-box"><option value="">উপ-খাত বেছে নিন</option></select>
+                    </div>
+
+                    <div id="adjFields" class="hidden space-y-4">
+                        <select id="adjMain" onchange="updateAdjSub()" class="input-box">
+                            <option value="">সংশোধন খাত বেছে নিন</option>
+                            <option value="Earnings">Earnings (আয়)</option>
+                            <option value="Liability">Liability (ঋণ)</option>
+                            <option value="Investment">Investment (বিনিয়োগ)</option>
+                        </select>
+                        <select id="adjSub" onchange="checkOthers(this.value)" class="input-box"><option value="">উপ-খাত বেছে নিন</option></select>
+                    </div>
+
+                    <div id="noteContainer" class="hidden">
+                        <input type="text" id="customNote" placeholder="নোট বা বিস্তারিত লিখুন..." class="input-box border-emerald-300 bg-emerald-50">
+                    </div>
+
+                    <input type="number" id="amount" placeholder="৳ টাকার পরিমাণ" class="input-box text-2xl font-black text-emerald-900">
+                    <button onclick="saveData()" id="saveBtn" class="w-full btn-green py-4 text-lg shadow-xl shadow-emerald-100 mt-2">শিটে সেভ ও আপডেট করুন</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-4">
+            <h3 class="text-xs font-black text-emerald-800 uppercase tracking-widest ml-1 flex justify-between">
+                বাজেট মিটার (চলতি মাস) <span id="syncTime" class="text-[10px] text-emerald-400"></span>
+            </h3>
+            <div id="mainBudgetList" class="space-y-4"></div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass-card p-6 border border-emerald-50 shadow-sm">
+                <h3 class="font-bold text-emerald-900 mb-4 border-b pb-2 flex justify-between items-center text-sm">
+                    সাম্প্রতিক এন্ট্রি <span id="navBalance" class="text-emerald-600 font-black font-mono text-base">৳ ০</span>
+                </h3>
+                <div id="recentList" class="space-y-3 max-h-[180px] overflow-y-auto pr-2 mb-6"></div>
+                
+                <button onclick="toggleReport()" class="w-full bg-emerald-900 text-white py-4 rounded-2xl font-bold text-sm shadow-lg mb-8 hover:bg-black transition">📊 বিস্তারিত মাসিক রিপোর্ট</button>
+
+                <div class="space-y-4 border-t border-emerald-50 pt-6">
+                    <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">আর্থিক প্রোফাইল (লাইভ)</p>
+                    
+                    <div class="glass-card p-5 flex justify-between items-center border-l-8 border-amber-500 bg-amber-50/40">
+                        <div><p class="text-[10px] font-bold text-amber-600 uppercase">Current Balance</p><p id="statBalance" class="font-black text-amber-800 text-xl">৳ ০</p></div>
+                        <span class="text-2xl">💳</span>
+                    </div>
+
+                    <div class="glass-card p-5 flex justify-between items-center border-l-8 border-emerald-500">
+                        <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Earnings</p><p id="statEarnings" class="font-black text-emerald-700 text-lg">৳ ০</p></div>
+                        <span class="text-2xl">💰</span>
+                    </div>
+
+                    <div class="glass-card p-5 flex justify-between items-center border-l-8 border-red-500">
+                        <div><p class="text-[10px] font-bold text-slate-400 uppercase">Current Liability</p><p id="statLiability" class="font-black text-red-600 text-lg font-mono">৳ ০</p></div>
+                        <span class="text-2xl">📉</span>
+                    </div>
+
+                    <div class="glass-card p-5 flex justify-between items-center border-l-8 border-blue-500">
+                        <div><p class="text-[10px] font-bold text-slate-400 uppercase">Investment</p><p id="statInvestment" class="font-black text-blue-700 text-lg">৳ ০</p></div>
+                        <span class="text-2xl">📈</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="reportModal" class="hidden fixed inset-0 bg-emerald-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[32px] p-8 relative">
+            <button onclick="toggleReport()" class="absolute top-6 right-8 text-slate-400 hover:text-black text-2xl">✕</button>
+            <h2 class="text-2xl font-bold text-emerald-900 mb-6">চলতি মাসের খরচ সামারি</h2>
+            <div id="modalContent" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+<button onclick="fetchFromSheet()" class="sync-btn-floating" title="Sync Data">
+    <span id="syncIcon" class="text-2xl">🔄</span> 
+</button>
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzQx9egL64woXVHFwPFmEiaeViCGs586aYKCeWZwXXy4eT2rdA3S7hHa-dB4Q4qHpBZQ/exec";
+        
+        const mainBudgets = {
+            Installment: 16000, Homeland: 10500, Residential: 9500, Sustenance: 10500, 
+            Transport: 1000, Charity: 1000, Essential: 500, Emergency: 500, Refreshment: 500, Savings: 500
+        };
+const subCategories = {
+    Installment: ["Loan (ঋণ পরিশোধ)", "Bank Interest (ব্যাংক মুনাফা/সুদ)", "Others (অন্যান্য)"],
+    Homeland: ["Parents (বাবা-মা)", "Village Cost (গ্রামের খরচ)", "Others (অন্যান্য)"],
+    Residential: ["House Rent (বাসা ভাড়া)", "Electricity (বিদ্যুৎ বিল)", "Gas (গ্যাস বিল)", "Water (পানি বিল)", "Internet (ইন্টারনেট বিল)", "Mobile Bill (মোবাইল বিল)"],
+    Sustenance: ["Vegetable (শাক-সবজি)", "Milk (দুধ)", "Egg (ডিম)", "Banana (কলা/ফলমূল)", "Fish (মাছ)", "Beef (গরুর মাংস)", "Chicken (মুরগির মাংস)", "Grocery (মুদি সওদা)", "Dry Food (শুকনা খাবার)"],
+    Transport: ["Workplace (অফিস যাতায়াত)", "Others (অন্যান্য)"],
+    Charity: ["Masjid (মসজিদ)", "Madrasha (মাদ্রাসা)", "Musafir (মুসাফির)", "Sadakah (সাদাকাহ)"],
+    Essential: ["Learning (শিক্ষা/শেখা)", "Medical (চিকিৎসা)", "Attire (পোশাক-আশাক)", "Furniture (আসবাবপত্র)"],
+    Emergency: ["Hospital (হাসপাতাল)", "Repairing (মেরামত খরচ)", "Others (অন্যান্য)"],
+    Refreshment: ["Tour (ভ্রমণ)", "Outing (বাইরে ঘোরাঘুরি)", "Restaurant (রেস্টুরেন্ট)"],
+    Savings: ["DPS (ডিপিএস)", "Sanchaypatra (সঞ্চয়পত্র)", "Others (অন্যান্য)"]
+};
+
+const adjSubCategories = {
+    Earnings: ["Salary (বেতন)", "Bonus (বোনাস)", "Dividend (লভ্যাংশ)", "Others (অন্যান্য)"],
+    Liability: ["Personal Loan (+) (ব্যক্তিগত ঋণ গ্রহণ)", "Bank Loan (+) (ব্যাংক ঋণ গ্রহণ)", "Loan Paid (-) (ঋণ ফেরত প্রদান)", "Installment Paid (-) (কিস্তি পরিশোধ)"],
+    Investment: ["Share Market (শেয়ার বাজার)", "Savings Certificate (সঞ্চয়পত্র)", "Fixed Deposit (এফডিআর/স্থায়ী আমানত)", "Others (অন্যান্য)"]
+};
+        let expenses = [];
+        let finance = { earnings: 51000, liability: 100000, investment: 500, currentBalance: 0 };
+        let currentMode = 'expense';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeExp').className = `flex-1 py-3 rounded-xl font-bold text-sm ${mode==='expense'?'active-tab':'text-emerald-700'}`;
+            document.getElementById('modeAdj').className = `flex-1 py-3 rounded-xl font-bold text-sm ${mode==='adjustment'?'active-tab':'text-emerald-700'}`;
+            document.getElementById('expenseFields').classList.toggle('hidden', mode!=='expense');
+            document.getElementById('adjFields').classList.toggle('hidden', mode!=='adjustment');
+            checkOthers('');
+        }
+
+        function updateSubCategories() {
+            const main = document.getElementById('mainCat').value;
+            const sub = document.getElementById('subCat');
+            sub.innerHTML = `<option value="">উপ-খাত বেছে নিন</option>`;
+            if (subCategories[main]) subCategories[main].forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
+        }
+
+        function updateAdjSub() {
+            const main = document.getElementById('adjMain').value;
+            const sub = document.getElementById('adjSub');
+            sub.innerHTML = `<option value="">উপ-খাত বেছে নিন</option>`;
+            if (adjSubCategories[main]) adjSubCategories[main].forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
+        }
+
+        function checkOthers(val) {
+            document.getElementById('noteContainer').classList.toggle('hidden', val !== 'Others');
+        }
+
+        function isCurrentMonth(dateStr) {
+            const entryDate = new Date(dateStr);
+            const now = new Date();
+            return entryDate.getMonth() === now.getMonth() && entryDate.getFullYear() === now.getFullYear();
+        }
+
+        async function fetchFromSheet() {
+            document.getElementById('syncIcon').classList.add('sync-loader');
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                if(data.expenses) {
+                    expenses = data.expenses;
+                    calculateFinance();
+                    refreshUI();
+                }
+            } catch (e) { console.error("Sync Error"); }
+            document.getElementById('syncIcon').classList.remove('sync-loader');
+            document.getElementById('syncTime').innerText = "Last sync: " + new Date().toLocaleTimeString();
+        }
+
+        function calculateFinance() {
+            let tempFinance = { earnings: 51000, liability: 100000, investment: 500, currentBalance: 0 };
+            let totalAllTimeExpense = 0;
+
+            expenses.forEach(ex => {
+                const amt = parseFloat(ex.amount);
+                if(ex.mode === 'expense') {
+                    totalAllTimeExpense += amt;
+                } else if(ex.mode === 'adjustment') {
+                    if(ex.main === 'Earnings') tempFinance.earnings += amt;
+                    if(ex.main === 'Investment') tempFinance.investment += amt;
+                    if(ex.main === 'Liability') {
+                        if(ex.sub.includes('(-)') || ex.sub.includes('Paid')) tempFinance.liability -= amt;
+                        else tempFinance.liability += amt;
+                    }
+                }
+            });
+
+            // ব্যালেন্স = মোট আয় - (মোট খরচ + ইনভেস্টমেন্ট)
+            tempFinance.currentBalance = tempFinance.earnings - (totalAllTimeExpense + tempFinance.investment);
+            finance = tempFinance;
+        }
+
+        function refreshUI() {
+            const spentStats = {};
+            let currentMonthTotal = 0;
+            
+            expenses.filter(ex => isCurrentMonth(ex.date)).forEach(ex => {
+                if(ex.mode === "expense") {
+                    spentStats[ex.main] = (spentStats[ex.main] || 0) + parseFloat(ex.amount);
+                    currentMonthTotal += parseFloat(ex.amount);
+                }
+            });
+
+            let html = "";
+            for (let cat in mainBudgets) {
+                let spent = spentStats[cat] || 0;
+                let balance = mainBudgets[cat] - spent;
+                let percent = (spent / mainBudgets[cat]) * 100;
+                html += `
+                    <div class="glass-card p-5 border-l-4 ${balance < 0 ? 'border-red-500' : 'border-emerald-500'}">
+                        <div class="flex justify-between font-bold text-sm mb-2">
+                            <span class="text-emerald-900">${cat}</span>
+                            <span class="${balance < 0 ? 'text-red-500 font-black' : 'text-emerald-600'}">৳ ${balance}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="${percent > 100 ? 'bg-red-500' : 'bg-emerald-500'} h-full transition-all duration-1000" style="width: ${Math.min(percent, 100)}%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase">বাজেট: ৳ ${mainBudgets[cat]} | এই মাসে খরচ: ৳ ${spent}</p>
+                    </div>`;
+            }
+            document.getElementById('mainBudgetList').innerHTML = html;
+            document.getElementById('navBalance').innerText = `এই মাসের খরচ: ৳ ${currentMonthTotal.toLocaleString()}`;
+            
+            document.getElementById('recentList').innerHTML = expenses.slice(-5).reverse().map(ex => `
+                <div class="p-3 bg-emerald-50/50 rounded-xl text-[11px] flex justify-between border border-emerald-100 mb-2">
+                    <div><b>${ex.sub}</b><br><span class="text-slate-400 text-[9px]">${ex.date}</span></div>
+                    <div class="font-black text-emerald-800">৳ ${parseFloat(ex.amount).toLocaleString()}</div>
+                </div>
+            `).join('') || "<p class='text-center text-slate-300 py-4'>No Entry Found</p>";
+
+            document.getElementById('statEarnings').innerText = `৳ ${finance.earnings.toLocaleString()}`;
+            document.getElementById('statLiability').innerText = `৳ ${finance.liability.toLocaleString()}`;
+            document.getElementById('statInvestment').innerText = `৳ ${finance.investment.toLocaleString()}`;
+            document.getElementById('statBalance').innerText = `৳ ${finance.currentBalance.toLocaleString()}`;
+        }
+
+        async function saveData() {
+            const btn = document.getElementById('saveBtn');
+            const main = currentMode === 'expense' ? document.getElementById('mainCat').value : document.getElementById('adjMain').value;
+            const sub = currentMode === 'expense' ? document.getElementById('subCat').value : document.getElementById('adjSub').value;
+            const note = document.getElementById('customNote').value;
+            const amount = document.getElementById('amount').value;
+            const date = document.getElementById('date').value;
+
+            if(!date || !amount || !main || !sub) return alert("রনি ভাই, সব তথ্য পূরণ করুন!");
+
+            btn.innerText = "শিটে পাঠানো হচ্ছে...";
+            btn.disabled = true;
+
+            const payload = { 
+                date, amount, main, 
+                sub: sub === 'Others' ? `Others (${note})` : sub, 
+                mode: currentMode 
+            };
+
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                alert("সফলভাবে আপডেট হয়েছে!");
+                document.getElementById('amount').value = "";
+                document.getElementById('customNote').value = "";
+                fetchFromSheet();
+            } catch(e) { alert("কানেকশন এরর!"); }
+            btn.innerText = "শিটে সেভ ও আপডেট করুন"; btn.disabled = false;
+        }
+
+        function toggleReport() {
+            document.getElementById('reportModal').classList.toggle('hidden');
+            if(!document.getElementById('reportModal').classList.contains('hidden')) {
+                const spentStats = {};
+                expenses.filter(ex => isCurrentMonth(ex.date)).forEach(ex => { 
+                    if(ex.mode === "expense") spentStats[ex.main] = (spentStats[ex.main] || 0) + parseFloat(ex.amount); 
+                });
+                let html = "";
+                for (let cat in mainBudgets) {
+                    let spent = spentStats[cat] || 0;
+                    html += `<div class="flex justify-between items-center p-5 bg-emerald-50 rounded-2xl mb-2">
+                        <div><p class="font-bold text-emerald-900">${cat}</p><p class="text-[10px] text-emerald-500 font-bold uppercase">বরাদ্দ: ৳ ${mainBudgets[cat]}</p></div>
+                        <p class="font-black ${spent > mainBudgets[cat] ? 'text-red-600' : 'text-emerald-800'}">৳ ${spent}</p>
+                    </div>`;
+                }
+                document.getElementById('modalContent').innerHTML = html;
+            }
+        }
+
+        fetchFromSheet();
+        document.getElementById('date').valueAsDate = new Date();
+    </script>
+</body>
+</html>

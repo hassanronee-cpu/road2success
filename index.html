@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আলোর কাফেলা | ড্যাশবোর্ড</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 x=%2250%%22 text-anchor=%22middle%22 font-size=%2280%22>🌙</text></svg>">    
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; overflow: hidden; }
+        /* আইফ্রেমের হাইট ফিক্স করা */
+        .content-frame {
+            width: 100%;
+            height: calc(100vh - 64px); /* ৬৪ পিক্সেল হলো নেভিগেশন বারের উচ্চতা */
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="bg-white border-b shadow-sm h-16 flex items-center z-50 relative">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🌙</span>
+                <span class="text-xl font-bold text-green-800">আলোর কাফেলা</span>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="loadPage('home.html')" class="text-sm font-semibold text-slate-600 hover:text-green-700">বাড়ি</button>
+                <button onclick="loadPage('activity-2026.html')" class="text-sm font-semibold text-slate-600 hover:text-green-700">কাজ</button>
+                <button onclick="loadPage('niyat.html')" class="text-sm font-semibold text-slate-600 hover:text-green-700">নিয়ত</button>
+                <button onclick="goToContact()" class="text-sm font-semibold text-slate-600 hover:text-green-700">যোগাযোগ</button>
+            </div>
+        </div>
+    </nav>
+
+    <iframe id="mainFrame" src="home.html" class="content-frame"></iframe>
+
+    <script>
+        function loadPage(pageUrl) {
+            document.getElementById('mainFrame').src = pageUrl;
+        }
+
+        // যোগাযোগ সেকশনে যাওয়ার জন্য নতুন ফাংশন
+        function goToContact() {
+            const frame = document.getElementById('mainFrame');
+            // প্রথমে নিশ্চিত হওয়া যে হোম পেজ লোড আছে, তারপর ওই আইডির লোকেশনে পাঠানো
+            frame.src = "home.html#contact";
+        }
+    
+        // ব্রাউজারের ব্যাক বাটন হ্যান্ডেল করার জন্য ছোট একটি ট্রিক
+        window.onpopstate = function() {
+            const frame = document.getElementById('mainFrame');
+            // প্রয়োজন হলে এখানে আরও লজিক যোগ করা যাবে
+        };
+    </script>
+</body>
+</html>
