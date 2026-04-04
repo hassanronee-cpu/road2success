@@ -65,7 +65,7 @@ body { padding-bottom: 100px; }
     z-index: 9999;
     background: #1d4ed8; /* ব্লু কালার */
     color: white;
-    padding: 13px 28px;
+    padding: 14px 28px;
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -93,8 +93,23 @@ body { padding-bottom: 100px; }
 body {
     /* মোবাইল ব্রাউজারের ভিউপোর্ট হাইট ফিক্স */
     min-height: -webkit-fill-available; 
-    padding-bottom: 120px; /* বাটনগুলোর জন্য নিচের দিকে বাড়তি জায়গা রাখা */
+    padding-bottom: 0px; /* বাটনগুলোর জন্য নিচের দিকে বাড়তি জায়গা রাখা */
 }
+/* লোডিং স্পিনার অ্যানিমেশন */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.hidden-spinner { display: none; }
     </style>
 </head>
 <script src="security.js"></script>
@@ -187,8 +202,10 @@ body {
 
       </div>
 </main>
+    <footer class="bg-gray-900 text-white py-16 text-center">
+        <p class="opacity-80">&copy; ২০২৬ | আলোর কাফেলা</p>
+    </footer>
 
-   
     <script>
 let confettiShown = false;
 
@@ -262,18 +279,22 @@ function confirmAndSave() {
 }
 function sendData() {
     const score = document.getElementById('total-points').innerText;
-    const msg = document.getElementById('msg');
-    
+    const btnSpinner = document.getElementById('btnSpinner');
+    const btnText = document.getElementById('btnText');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // এনিমেশন শুরু: বাটন ডিজেবল করা এবং স্পিনার দেখানো
+    btnSpinner.classList.remove('hidden-spinner');
+    btnText.style.opacity = "0.5";
+    saveBtn.disabled = true;
+
     let selectedTasks = [];
-    let taskDetails = []; // এখানে কাজের নাম ও পয়েন্ট জমা হবে
+    let taskDetails = []; 
 
     document.querySelectorAll('input[type="checkbox"]:checked').forEach(i => {
         selectedTasks.push(i.dataset.task);
-        // শিটে পাঠানোর জন্য ফরম্যাট: "তাহাজ্জুদ (১০)"
         taskDetails.push(`${i.dataset.task} (${i.dataset.points})`);
     });
-
-    msg.innerText = "শিটে পাঠানো হচ্ছে...";
 
     const url = 'https://script.google.com/macros/s/AKfycbz_u34W4fSprxFLnlpe8eIiJdqu_HGDpy79phwWZSArS4m71z3HkqNT4pOdACSac3ip/exec'; 
 
@@ -282,19 +303,30 @@ function sendData() {
         mode: 'no-cors',
         body: JSON.stringify({ 
             points: score, 
-            date: new Date().toLocaleDateString('bn-BD'), // ইউনিক রো চেনার জন্য তারিখ
-            details: taskDetails.join(', ') // সব কাজের বিস্তারিত এক লাইনে
+            date: new Date().toLocaleDateString('bn-BD'),
+            details: taskDetails.join(', ')
         })
     }).then(() => {
-        // সেভ করা কাজগুলো লোকাল স্টোরেজে যুক্ত করা
+        // ডাটা সেভ হওয়ার পর কাজ
         const alreadyDone = JSON.parse(localStorage.getItem('completedTasks') || "[]");
-        localStorage.setItem('completedTasks', JSON.stringify([...alreadyDone, ...selectedTasks]));
+        localStorage.setItem('completedTasks', JSON.stringify([...new Set([...alreadyDone, ...selectedTasks])]));
 
-        alert("আলহামদুলিল্লাহ! ডাটা সেভ হয়েছে।");
-        location.reload(); // পেজ রিফ্রেশ করলে কাজগুলো হাইড হয়ে যাবে
+        // এনিমেশন বন্ধ
+        btnSpinner.classList.add('hidden-spinner');
+        btnText.style.opacity = "1";
+        saveBtn.disabled = false;
+
+        alert("আলহামদুলিল্লাহ! ডাটা সফলভাবে সেভ হয়েছে।");
+        
+        hideCompletedTasks(); 
+        document.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+        calc();
+
     }).catch(e => {
-        msg.innerText = "ত্রুটি হয়েছে!";
-        console.error(e);
+        btnSpinner.classList.add('hidden-spinner');
+        btnText.style.opacity = "1";
+        saveBtn.disabled = false;
+        alert("ত্রুটি হয়েছে! ইন্টারনাল কানেকশন চেক করুন।");
     });
 }
 // Confetti ফাংশন আগের মতোই থাকবে
@@ -369,9 +401,12 @@ window.onclick = function(event) {
     <span class="text-lg">📊</span>
 </button>
 
-<button onclick="confirmAndSave()" class="save-btn-floating">
-    <span class="block text-xs opacity-80 font-normal">ডেটা সেভ</span>
-    <span class="text-lg font-bold">💾</span>
+<button id="saveBtn" onclick="confirmAndSave()" class="save-btn-floating flex items-center justify-center">
+    <div id="btnSpinner" class="spinner hidden-spinner"></div>
+    <div id="btnText">
+        <span class="block text-xs opacity-80 font-normal">ডেটা সেভ</span>
+        <span class="text-lg font-bold">💾</span>
+    </div>
 </button>
 <div id="reportModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[10000] hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
