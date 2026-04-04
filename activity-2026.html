@@ -18,7 +18,7 @@
     background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
     background-attachment: fixed; /* স্ক্রল করার সময় ব্যাকগ্রাউন্ড স্থির থাকবে */ }
         .score-box-floating {
-            position: fixed; bottom: 15px; left: 20px; z-index: 9999;
+            position: fixed; bottom: 10px; left: 20px; z-index: 9999;
             background: linear-gradient(135deg, #064e3b 0%, #166534 100%);
             color: white; padding: 12px 20px; border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
@@ -44,7 +44,7 @@
     /* 👉 এই অংশটা score-box থেকে কপি */
     background: linear-gradient(135deg, #064e3b 0%, #166534 100%);
     color: white;
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -65,7 +65,7 @@ body { padding-bottom: 100px; }
     z-index: 9999;
     background: #1d4ed8; /* ব্লু কালার */
     color: white;
-    padding: 14px 28px;
+    padding: 10px 28px;
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -75,12 +75,12 @@ body { padding-bottom: 100px; }
 .report-btn-floating:hover { background: #1e40af; transform: scale(1.05); }
 .save-btn-floating {
     /* নিচের বার থেকে নিরাপদ দূরত্ব + আপনার কাস্টম গ্যাপ */
-    bottom: calc(15px + env(safe-area-inset-bottom)); 
+    bottom: calc(10px + env(safe-area-inset-bottom)); 
 }
 
 .report-btn-floating {
     /* সেভ বাটন যদি নিচে থাকে, তবে তার থেকে ৮০px উপরে */
-    bottom: calc(90px + env(safe-area-inset-bottom));
+    bottom: calc(85px + env(safe-area-inset-bottom));
 }
 .floating-btn-common {
     position: fixed;
@@ -202,7 +202,7 @@ body {
 
       </div>
 </main>
-    <footer class="bg-gray-900 text-white py-14 text-center">
+    <footer class="bg-gray-900 text-white py-16 text-center">
         <p class="opacity-80">&copy; ২০২৬ | আলোর কাফেলা</p>
     </footer>
 
