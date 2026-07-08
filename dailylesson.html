@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>প্রতিদিনের পাঠ | আলোর কাফেলা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background-color: #f0fdf4; /* হালকা সবুজ ব্যাকগ্রাউন্ড */
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .lesson-card {
+            background: white;
+            border: 1px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            background-color: #065f46;
+            color: white;
+            border-color: #065f46;
+            box-shadow: 0 10px 15px -3px rgba(6, 95, 70, 0.3);
+        }
+        .modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <div class="max-w-4xl mx-auto mb-8 text-center mt-6">
+        <h1 class="text-3xl font-extrabold text-green-900 mb-2">📚 প্রতিদিনের পাঠ</h1>
+        <p class="text-slate-600 font-semibold">নিয়মিত চর্চা ও আত্মউন্নয়নের ধারাবাহিক গাইড</p>
+    </div>
+
+    <!-- দিনসমূহের গ্রিড লেআউট -->
+    <div class="lesson-grid px-2">
+        <!-- দিন ১ থেকে ১২ এর বক্স (আপনার সুবিধার্থে লুপ বা ম্যানুয়ালি আরও বাড়াতে পারবেন) -->
+        <div class="lesson-card group" onclick="openLesson(1)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">🌱</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ১</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">শুরু করুন</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(2)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">📖</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ২</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">চলমান</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(3)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">🕌</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ৩</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">চলমান</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(4)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">📝</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ৪</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">চলমান</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(5)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">💡</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ৫</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">চলমান</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(6)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">⏳</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ৬</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">চলমান</span>
+        </div>
+        <div class="lesson-card group" onclick="openLesson(7)">
+            <span class="block text-2xl mb-1 group-hover:scale-110 transition">🎯</span>
+            <span class="font-bold text-lg block text-emerald-800 group-hover:text-white">দিন - ৭</span>
+            <span class="text-xs text-slate-400 group-hover:text-emerald-200">রিভিউ দিন</span>
+        </div>
+        <!-- রনি ভাই, আপনি চাইলে ঠিক এভাবেই কপি করে দিন-৮, ৯, ১০ যত খুশি যোগ করতে পারবেন -->
+    </div>
+
+    <!-- লেসন দেখানোর পপ-আপ মডাল (Modal) -->
+    <div id="lessonModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden justify-center items-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transform scale-95 transition-all">
+            <!-- মডাল হেডার -->
+            <div class="bg-green-800 text-white p-5 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold">পাঠের শিরোনাম</h3>
+                <button onclick="closeModal()" class="text-2xl font-bold hover:text-emerald-300 transition">&times;</button>
+            </div>
+            <!-- মডাল বডি (কন্টেন্ট) -->
+            <div id="modalContent" class="p-6 max-h-[60vh] overflow-y-auto text-slate-700 leading-relaxed font-medium">
+                <!-- এখানে প্রতিদিনের পড়া ডায়নামিকালি আসবে -->
+            </div>
+            <!-- মডাল ফুটার -->
+            <div class="bg-slate-50 p-4 flex justify-end border-t">
+                <button onclick="closeModal()" class="bg-green-700 text-white px-5 py-2 rounded-xl font-bold hover:bg-green-800 transition text-sm">পড়া শেষ করেছি</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // রনি ভাই, প্রতিদিনের পড়া বা লেসনগুলো এখানে লিখে রাখবেন (HTML ট্যাগও ব্যবহার করতে পারবেন)
+        const lessonsData = {
+            1: {
+                title: "দিন - ১: ঈমান ও নিয়ত শুদ্ধি",
+                content: `<p class='mb-3 font-bold text-green-700'>আজকের লক্ষ্য:</p>
+                          <ul class='list-disc pl-5 space-y-2'>
+                             <li>সব কাজের শুরুতে নিয়ত আল্লাহর সন্তুষ্টির জন্য কি না তা নিশ্চিত করা।</li>
+                             <li>লুগাতুল আরাবিয়া লেভেলের প্রথম অধ্যায়ের শব্দার্থগুলো রিভিশন দেওয়া।</li>
+                             <li>সকাল ৪টায় ঘুম থেকে উঠে তাহাজ্জুদ ও ফজরের সালাত মসজিদে আদায় করা।</li>
+                          </ul>`
+            },
+            2: {
+                title: "দিন - ২: আরবি ভাষা ও আল-কুরআন",
+                content: `<p class='mb-3 font-bold text-green-700'>আজকের লক্ষ্য:</p>
+                          <ul class='list-disc pl-5 space-y-2'>
+                             <li>কুরআননিক আরাবিক লেভেলের শব্দে শব্দে অর্থ শেখা (পারা ২৯ থেকে ২ পৃষ্ঠা)।</li>
+                             <li>আজকে অন্তত ১৫ মিনিট ব্যায়াম সম্পন্ন করা।</li>
+                             <li>ব্যাংকের কাজের ফাঁকে ২ বার ইস্তিগফার ও তাসবীহ পাঠ করা।</li>
+                          </ul>`
+            },
+            3: {
+                title: "দিন - ৩: কর্মপরিকল্পনা ও ডাটা স্কিল",
+                content: `<p class='mb-3 font-bold text-green-700'>আজকের লক্ষ্য:</p>
+                          <ul class='list-disc pl-5 space-y-2'>
+                             <li>অ্যাডভান্সড এক্সেলের নতুন একটি ভিবিএ (VBA) ম্যাক্রো স্ক্রিপ্ট প্র্যাকটিস করা।</li>
+                             <li>ইংরেজি ফ্লুয়েন্সির জন্য ১০ মিনিট জোরে জোরে রিডিং পড়া।</li>
+                          </ul>`
+            },
+            4: {
+                title: "দিন - ৪: নতুন পাঠ",
+                content: "রনি ভাই, এখানে দিন ৪ এর বিস্তারিত পড়া বা নোট লিখে দিতে পারবেন।"
+            },
+            5: {
+                title: "দিন - ৫: নতুন পাঠ",
+                content: "এখানে দিন ৫ এর বিস্তারিত পড়া বা নোট লিখে দিতে পারবেন।"
+            },
+            6: {
+                title: "দিন - ৬: নতুন পাঠ",
+                content: "এখানে দিন ৬ এর বিস্তারিত পড়া বা নোট লিখে দিতে পারবেন।"
+            },
+            7: {
+                title: "দিন - ৭: সাপ্তাহিক পর্যালোচনা",
+                content: "গত ৬ দিনের করা কাজের একটি হিসাব নিন এবং ঘাটতিগুলো আজ পূরণ করুন।"
+            }
+        };
+
+        function openLesson(day) {
+            const modal = document.getElementById('lessonModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            // ডাটাবেজ/অবজেক্ট থেকে তথ্য নেওয়া
+            const lesson = lessonsData[day] || { title: `দিন - ${day}`, content: "এই দিনের কোনো পাঠ এখনো যুক্ত করা হয়নি। 🌙" };
+            
+            title.innerText = lesson.title;
+            content.innerHTML = lesson.content;
+            
+            // মডাল শো করা
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('lessonModal');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 150);
+        }
+
+        // মডালের বাইরে ক্লিক করলে বন্ধ হবে
+        window.onclick = function(event) {
+            const modal = document.getElementById('lessonModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
