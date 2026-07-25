@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্মার্ট অনুবাদ ও টাইপিং ট্র্যাকার</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --primary-dark: #122549;
+            --secondary: #2a5298;
+            --accent: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Hind Siliguri', 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        select, input[type="number"] {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--accent);
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        .timer-bar.free-mode {
+            background: #6c757d;
+            opacity: 0.5;
+        }
+
+        .section-box {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--primary-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        textarea.ar-text {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            font-size: 22px;
+            line-height: 1.6;
+        }
+
+        textarea.en-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn:hover { background: var(--primary-dark); }
+        .btn:active { transform: scale(0.98); }
+        .btn-success { background: var(--accent); }
+        .btn-success:hover { background: #219653; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-warning:hover { background: #d35400; }
+        .btn-secondary { background: #64748b; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-free { background: #6f42c1; }
+        .btn-free:hover { background: #5a32a3; }
+        .btn-free.active { background: #28a745; }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .mode-indicator {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #e2e8f0;
+            color: #475569;
+            display: inline-block;
+        }
+
+        .mode-indicator.timed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .mode-indicator.free {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .answer-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-top: 12px;
+        }
+
+        .answer-content {
+            display: none;
+            margin-top: 8px;
+            padding: 12px;
+            background: #ffffff;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            font-size: 18px;
+        }
+
+        .answer-content.ar {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            text-align: right;
+            font-size: 22px;
+        }
+
+        .answer-content.visible {
+            display: block;
+        }
+
+        .eval-result {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin: 12px 0 16px 0;
+            font-weight: 600;
+            display: none;
+            line-height: 1.6;
+            border-left: 6px solid transparent;
+        }
+
+        .eval-result.show {
+            display: block !important;
+        }
+
+        .eval-result.perfect {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .eval-result.good {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+
+        .eval-result.partial {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+
+        .eval-result.poor {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+
+        .eval-detail {
+            font-weight: 400;
+            font-size: 14px;
+            margin-top: 4px;
+            color: #333;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: #e2e8f0;
+            color: #475569;
+            font-weight: normal;
+        }
+
+        .history-section {
+            margin-top: 20px;
+            border-top: 1px solid #eef2f5;
+            padding-top: 14px;
+        }
+
+        .history-list {
+            list-style: none;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .history-item:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .status-tag {
+            font-weight: 700;
+            padding: 0 6px;
+            border-radius: 4px;
+        }
+
+        .status-tag.perfect { color: #28a745; }
+        .status-tag.good { color: #17a2b8; }
+        .status-tag.partial { color: #ffc107; }
+        .status-tag.poor { color: #dc3545; }
+
+        .time-display {
+            font-size: 13px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🧠 স্মার্ট অনুবাদ ও টাইপিং ট্র্যাকার</h1>
+        <p class="subtitle">বাংলা → আরবি/ইংরেজি • টাইমড + ফ্রি মোড • স্মার্ট ইভালুয়েশন</p>
+    </header>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="targetLang">অনুবাদ লক্ষ্য:</label>
+            <select id="targetLang">
+                <option value="ar">আরবি (Arabic)</option>
+                <option value="en">ইংরেজি (English)</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="difficulty">গতি চ্যালেঞ্জ:</label>
+            <select id="difficulty">
+                <option value="1.4">সহজ</option>
+                <option value="1.0" selected>সাধারণ</option>
+                <option value="0.7">কঠিন</option>
+                <option value="0.5">সুপার স্পিড</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>বরাদ্দকৃত সময়:</label>
+            <span id="timeEstimateDisplay" style="font-weight: 700; color: var(--primary);">০ সেকেন্ড</span>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-card"><div class="stat-label">লেভেল</div><div id="levelDisplay" class="stat-value">১</div></div>
+        <div class="stat-card"><div class="stat-label">স্কোর</div><div id="scoreDisplay" class="stat-value">০</div></div>
+        <div class="stat-card"><div class="stat-label">নির্ভুলতা</div><div id="accuracyDisplay" class="stat-value">—</div></div>
+        <div class="stat-card"><div class="stat-label">WPM</div><div id="wpmDisplay" class="stat-value">০</div></div>
+    </div>
+
+    <div class="timer-container">
+        <div id="timerBar" class="timer-bar"></div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-weight: 600; font-size: 14px;">🎯 মোড:</span>
+        <button id="timedModeBtn" class="btn btn-success active" onclick="setMode('timed')" style="font-size: 13px; padding: 5px 14px;">⏱️ টাইমড</button>
+        <button id="freeModeBtn" class="btn btn-free" onclick="setMode('free')" style="font-size: 13px; padding: 5px 14px;">🆓 ফ্রি টাইপিং</button>
+        <span id="modeIndicator" class="mode-indicator timed">⏱️ টাইমড মোড</span>
+    </div>
+
+    <!-- Evaluation Result Panel -->
+    <div id="evalResult" class="eval-result">
+        <div id="evalTitle" style="font-size: 16px;"></div>
+        <div id="evalDetail" class="eval-detail"></div>
+    </div>
+
+    <!-- Section 1: Bengali Input -->
+    <div class="section-box">
+        <div class="section-title">
+            <span>📝 ১. বাংলা বাক্য লিখুন</span>
+            <span class="badge">দৈর্ঘ্য অনুযায়ী সময় নির্ধারিত হবে</span>
+        </div>
+        <textarea id="bnInput" rows="3" placeholder="যেমন: আমি বাড়ি যাচ্ছি।" oninput="onBnInputChange()"></textarea>
+    </div>
+
+    <div class="action-bar">
+        <button id="startBtn" class="btn btn-success" onclick="startPractice()">⏱️ অনুশীলন শুরু</button>
+        <button id="resetBtn" class="btn btn-secondary" onclick="resetPractice()">🔄 রিসেট</button>
+        <button class="btn btn-warning" onclick="fetchGoogleTranslation(false)">🌐 Google Translate</button>
+    </div>
+
+    <!-- Section 2: Target Language Typing -->
+    <div class="section-box">
+        <div class="section-title">
+            <span>⌨️ ২. অনুবাদ টাইপ করুন</span>
+            <span id="targetLangLabel" class="badge">আরবি</span>
+            <span id="typingTimerDisplay" class="time-display" style="display: none;">⏱️ ০.০ সেকেন্ড</span>
+        </div>
+        <textarea id="targetInput" class="ar-text" rows="3" placeholder="'অনুশীলন শুরু' ক্লিক করে টাইপ শুরু করুন..." disabled oninput="onTypingInput()"></textarea>
+    </div>
+
+    <div class="action-bar">
+        <button id="submitBtn" class="btn" onclick="submitTranslation()" disabled>✅ যাচাই করুন</button>
+    </div>
+
+    <!-- Section 3: Reference Answer -->
+    <div class="answer-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <strong>📖 গুগল ট্রান্সলেট রেফারেন্স:</strong>
+            <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleAnswer()">👁️ দেখুন</button>
+        </div>
+        <div id="answerContent" class="answer-content ar">
+            <span id="answerText">Google Translate লোড করুন</span>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="section-title">📊 সাম্প্রতিক পারফর্মেন্স:</div>
+        <ul id="historyList" class="history-list"></ul>
+    </div>
+</div>
+
+<script>
+    // --- Core State ---
+    let timer = null;
+    let totalTime = 0;
+    let timeLeft = 0;
+    let isRunning = false;
+    let isFreeMode = false;
+    let startTime = null;
+    let typingStartTime = null;
+    let level = 1;
+    let score = 0;
+    let googleTranslationCache = "";
+    let isTypingActive = false;
+
+    // --- DOM Elements ---
+    const bnInput = document.getElementById('bnInput');
+    const targetInput = document.getElementById('targetInput');
+    const targetLang = document.getElementById('targetLang');
+    const difficulty = document.getElementById('difficulty');
+    const timeEstimateDisplay = document.getElementById('timeEstimateDisplay');
+    const timerBar = document.getElementById('timerBar');
+    const startBtn = document.getElementById('startBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const levelDisplay = document.getElementById('levelDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const accuracyDisplay = document.getElementById('accuracyDisplay');
+    const wpmDisplay = document.getElementById('wpmDisplay');
+    const targetLangLabel = document.getElementById('targetLangLabel');
+    const answerContent = document.getElementById('answerContent');
+    const answerText = document.getElementById('answerText');
+    const evalResult = document.getElementById('evalResult');
+    const evalTitle = document.getElementById('evalTitle');
+    const evalDetail = document.getElementById('evalDetail');
+    const historyList = document.getElementById('historyList');
+    const modeIndicator = document.getElementById('modeIndicator');
+    const timedModeBtn = document.getElementById('timedModeBtn');
+    const freeModeBtn = document.getElementById('freeModeBtn');
+    const typingTimerDisplay = document.getElementById('typingTimerDisplay');
+
+    // --- Mode Switching ---
+    function setMode(mode) {
+        if (isRunning) {
+            showEval("⚠️ অনুশীলন চলাকালীন মোড পরিবর্তন করা যাবে না। প্রথমে রিসেট করুন।", "partial");
+            return;
+        }
+        
+        isFreeMode = (mode === 'free');
+        
+        if (isFreeMode) {
+            timedModeBtn.className = 'btn btn-success';
+            freeModeBtn.className = 'btn btn-free active';
+            modeIndicator.textContent = '🆓 ফ্রি টাইপিং মোড';
+            modeIndicator.className = 'mode-indicator free';
+            timerBar.className = 'timer-bar free-mode';
+            timeEstimateDisplay.textContent = '♾️ সীমাহীন';
+            targetInput.placeholder = "ফ্রি মোড: আপনার সময় নিয়ে অনুবাদ টাইপ করুন...";
+            startBtn.textContent = '✍️ টাইপিং শুরু';
+            startBtn.className = 'btn btn-free';
+        } else {
+            timedModeBtn.className = 'btn btn-success active';
+            freeModeBtn.className = 'btn btn-free';
+            modeIndicator.textContent = '⏱️ টাইমড মোড';
+            modeIndicator.className = 'mode-indicator timed';
+            timerBar.className = 'timer-bar';
+            startBtn.textContent = '⏱️ অনুশীলন শুরু';
+            startBtn.className = 'btn btn-success';
+            recalculateTime();
+        }
+        
+        clearEval();
+        resetPracticeUI();
+        targetInput.value = '';
+        typingTimerDisplay.style.display = 'none';
+    }
+
+    // --- Helper: Update language UI ---
+    function updateLanguageUI() {
+        const lang = targetLang.value;
+        if (lang === 'ar') {
+            targetInput.className = 'ar-text';
+            answerContent.className = 'answer-content ar';
+            targetLangLabel.innerText = 'আরবি টাইপিং';
+            if (!isFreeMode) targetInput.placeholder = "هنا اكتب الترجمة باللغة العربية...";
+        } else {
+            targetInput.className = 'en-text';
+            answerContent.className = 'answer-content';
+            targetLangLabel.innerText = 'ইংরেজি টাইপিং';
+            if (!isFreeMode) targetInput.placeholder = "Type your translation in English here...";
+        }
+        if (!isFreeMode) recalculateTime();
+        clearGoogleAnswer();
+    }
+
+    function clearGoogleAnswer() {
+        googleTranslationCache = "";
+        answerText.innerText = "Google Translate লোড করুন";
+        answerContent.classList.remove('visible');
+    }
+
+    function onBnInputChange() {
+        if (!isFreeMode) recalculateTime();
+    }
+
+    // --- Smart Time Calculation ---
+    function calculateTargetTime(text) {
+        const clean = text.trim();
+        if (!clean) return 0;
+
+        const wordCount = clean.split(/\s+/).length;
+        const charCount = clean.length;
+        const lang = targetLang.value;
+        const diff = parseFloat(difficulty.value);
+
+        let base = 2.0 + (charCount * 0.25) + (wordCount * 1.2);
+        const levelFactor = Math.max(0.6, 1 - (level - 1) * 0.04);
+        const langFactor = (lang === 'ar') ? 1.15 : 1.0;
+        let estimated = base * diff * levelFactor * langFactor;
+        return Math.min(30, Math.max(4, Math.round(estimated * 10) / 10));
+    }
+
+    function recalculateTime() {
+        if (isRunning || isFreeMode) return;
+        totalTime = calculateTargetTime(bnInput.value);
+        timeEstimateDisplay.innerText = totalTime > 0 ? totalTime + " সেকেন্ড" : "০ সেকেন্ড";
+        timerBar.style.width = "100%";
+        timerBar.style.backgroundColor = "var(--accent)";
+    }
+
+    // --- Google Translate ---
+    async function fetchGoogleTranslation(silent = false) {
+        const text = bnInput.value.trim();
+        if (!text) {
+            if (!silent) showEval("অনুবাদ জেনারেট করতে প্রথমে বাংলা বাক্য লিখুন।", "partial");
+            return;
+        }
+
+        const lang = targetLang.value;
+        const target = lang === 'ar' ? 'ar' : 'en';
+        
+        if (!silent) {
+            showEval("⏳ Google Translate লোড হচ্ছে...", "partial");
+        }
+        
+        try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=bn&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data && data[0]) {
+                let translatedText = '';
+                for (let i = 0; i < data[0].length; i++) {
+                    if (data[0][i] && data[0][i][0]) {
+                        translatedText += data[0][i][0];
+                    }
+                }
+                
+                if (translatedText) {
+                    googleTranslationCache = translatedText;
+                    answerText.innerText = translatedText;
+                    answerContent.classList.add('visible');
+                    if (!silent) {
+                        showEval("✅ Google Translate সফলভাবে লোড হয়েছে!", "good");
+                    }
+                    return;
+                }
+            }
+            throw new Error("অনুবাদ পাওয়া যায়নি");
+            
+        } catch (error) {
+            console.error("Google Translate Error:", error);
+            try {
+                const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=bn|${target}`;
+                const fallbackResponse = await fetch(fallbackUrl);
+                const fallbackData = await fallbackResponse.json();
+                
+                if (fallbackData && fallbackData.responseData && fallbackData.responseData.translatedText) {
+                    googleTranslationCache = fallbackData.responseData.translatedText;
+                    answerText.innerText = googleTranslationCache + " (MyMemory)";
+                    answerContent.classList.add('visible');
+                    if (!silent) {
+                        showEval("⚠️ Google Translate সচল নেই, MyMemory ব্যবহার করা হচ্ছে।", "partial");
+                    }
+                    return;
+                }
+            } catch (fallbackError) {
+                console.error("Fallback Error:", fallbackError);
+            }
+            
+            googleTranslationCache = "অনুবাদ লোড করা সম্ভব হয়নি।";
+            answerText.innerText = googleTranslationCache;
+            if (!silent) {
+                showEval("❌ অনুবাদ লোড করতে ব্যর্থ হয়েছে।", "poor");
+            }
+        }
+    }
+
+    // --- Start Practice ---
+    function startPractice() {
+        const text = bnInput.value.trim();
+        if (!text) {
+            showEval("দয়া করে একটি বাংলা বাক্য লিখুন।", "partial");
+            return;
+        }
+
+        if (!isFreeMode) {
+            recalculateTime();
+            if (totalTime <= 0) {
+                showEval("বাক্যটি খুব ছোট, দয়া করে একটি বড় বাক্য লিখুন।", "partial");
+                return;
+            }
+        }
+
+        clearEval();
+        targetInput.value = "";
+        targetInput.disabled = false;
+        targetInput.focus();
+        startBtn.disabled = true;
+        submitBtn.disabled = false;
+        bnInput.disabled = true;
+        isRunning = true;
+        typingStartTime = null;
+        isTypingActive = false;
+        typingTimerDisplay.style.display = 'block';
+        typingTimerDisplay.textContent = '⏱️ ০.০ সেকেন্ড';
+
+        if (isFreeMode) {
+            // Free mode: no timer limit
+            timeEstimateDisplay.textContent = '♾️ সীমাহীন';
+            timerBar.style.width = '100%';
+            timerBar.style.backgroundColor = '#6c757d';
+            timerBar.style.opacity = '0.5';
+            startTime = new Date();
+            showEval("🆓 ফ্রি মোড সক্রিয়। আপনার সময় নিয়ে অনুবাদ টাইপ করুন।", "good");
+        } else {
+            // Timed mode
+            timeLeft = totalTime;
+            startTime = new Date();
+            updateTimerUI();
+            timer = setInterval(() => {
+                timeLeft -= 0.1;
+                if (timeLeft <= 0) {
+                    timeLeft = 0;
+                    updateTimerUI();
+                    clearInterval(timer);
+                    handleTimeOut();
+                } else {
+                    updateTimerUI();
+                }
+            }, 100);
+            showEval("⏱️ টাইমড মোড সক্রিয়। দ্রুত টাইপ করুন!", "info");
+        }
+
+        // Auto-fetch translation
+        fetchGoogleTranslation(true);
+    }
+
+    function updateTimerUI() {
+        timeEstimateDisplay.innerText = timeLeft.toFixed(1) + " সেকেন্ড";
+        const pct = Math.max(0, (timeLeft / totalTime) * 100);
+        timerBar.style.width = pct + "%";
+        if (pct < 25) timerBar.style.backgroundColor = "var(--danger)";
+        else if (pct < 50) timerBar.style.backgroundColor = "var(--warning)";
+        else timerBar.style.backgroundColor = "var(--accent)";
+    }
+
+    function onTypingInput() {
+        if (!isRunning) return;
+        
+        // Start timing when user starts typing
+        if (!isTypingActive && targetInput.value.trim().length > 0) {
+            isTypingActive = true;
+            typingStartTime = new Date();
+        }
+        
+        // Update typing timer
+        if (isTypingActive && typingStartTime) {
+            const elapsed = ((new Date() - typingStartTime) / 1000);
+            typingTimerDisplay.textContent = `⏱️ ${elapsed.toFixed(1)} সেকেন্ড`;
+        }
+    }
+
+    function handleTimeOut() {
+        isRunning = false;
+        targetInput.disabled = true;
+        submitBtn.disabled = true;
+        showEval("⏰ সময় শেষ! আপনার টাইপিং গতি আরও বাড়ান।", "poor");
+        answerContent.classList.add('visible');
+        resetPracticeUI();
+        typingTimerDisplay.style.display = 'none';
+    }
+
+    // --- Submit & Evaluate ---
+    function submitTranslation() {
+        if (!isRunning) {
+            if (targetInput.value.trim() && bnInput.value.trim()) {
+                performEvaluation();
+            }
+            return;
+        }
+        
+        if (!isFreeMode) {
+            clearInterval(timer);
+        }
+        isRunning = false;
+        performEvaluation();
+    }
+
+    function performEvaluation() {
+        const userText = targetInput.value.trim();
+        if (!userText) {
+            showEval("আপনি কোনো অনুবাদ টাইপ করেননি!", "partial");
+            resetPracticeUI();
+            return;
+        }
+
+        // Calculate time
+        let timeTaken = 0;
+        if (typingStartTime) {
+            timeTaken = (new Date() - typingStartTime) / 1000;
+        } else if (startTime) {
+            timeTaken = (new Date() - startTime) / 1000;
+        }
+        
+        // Calculate WPM
+        const wordsTyped = userText.split(/\s+/).length;
+        const wpm = timeTaken > 0 ? Math.round((wordsTyped / timeTaken) * 60) : 0;
+        wpmDisplay.innerText = wpm;
+
+        // Evaluate
+        const result = evaluateTranslation(userText, googleTranslationCache);
+        const accuracy = result.accuracy;
+        accuracyDisplay.innerText = accuracy + "%";
+
+        // Score & Level
+        let timeBonus = 0;
+        if (!isFreeMode && timeLeft > 0) {
+            timeBonus = Math.round(timeLeft * 3);
+        }
+        const earned = Math.round((wordsTyped * 2) + (accuracy * 0.5) + timeBonus);
+        score += Math.max(2, earned);
+        if (accuracy >= 75) level++;
+        levelDisplay.innerText = level;
+        scoreDisplay.innerText = score;
+
+        // Show evaluation
+        let timeMsg = '';
+        if (timeTaken > 0) {
+            timeMsg = `⏱️ সময় লেগেছে: ${timeTaken.toFixed(1)} সেকেন্ড | `;
+        }
+        showEval(timeMsg + result.message, result.status, result.details);
+        answerContent.classList.add('visible');
+
+        // History
+        const timeDisplay = timeTaken > 0 ? timeTaken.toFixed(1) + "s" : "N/A";
+        addHistory(bnInput.value, userText, timeDisplay, wpm, accuracy, result.status);
+
+        resetPracticeUI();
+        typingTimerDisplay.style.display = 'none';
+        startBtn.disabled = false;
+        targetInput.disabled = true;
+    }
+
+    // --- Smart Evaluation Engine ---
+    function evaluateTranslation(user, reference) {
+        if (!reference || reference.includes("লোড করা সম্ভব হয়নি") || reference.includes("Google Translate লোড করুন")) {
+            if (user.length > 5) {
+                return {
+                    accuracy: 70,
+                    status: "partial",
+                    message: "⚠️ রেফারেন্স অনুপলব্ধ, তবে আপনার ইনপুট যুক্তিসঙ্গত দেখাচ্ছে।",
+                    details: "অনুগ্রহ করে 'Google Translate' বোতামে ক্লিক করে রেফারেন্স যুক্ত করুন।"
+                };
+            } else {
+                return {
+                    accuracy: 30,
+                    status: "poor",
+                    message: "❌ অনুবাদ খুব ছোট অথবা অর্থপূর্ণ নয়।",
+                    details: "দয়া করে একটি পূর্ণাঙ্গ বাক্য অনুবাদ করুন।"
+                };
+            }
+        }
+
+        const cleanUser = user.replace(/[.,\/#!$%^&*;:{}=\-_`~()]/g, "").toLowerCase().trim();
+        const cleanRef = reference.replace(/[.,\/#!$%^&*;:{}=\-_`~()]/g, "").toLowerCase().trim();
+
+        if (cleanUser === cleanRef) {
+            return {
+                accuracy: 100,
+                status: "perfect",
+                message: "🎉 চমৎকার! অনুবাদ ১০০% নির্ভুল।",
+                details: "আপনার অনুবাদ Google Translate-এর সাথে হুবহু মিলেছে!"
+            };
+        }
+
+        const userWords = cleanUser.split(/\s+/);
+        const refWords = cleanRef.split(/\s+/);
+        let matchCount = 0;
+        userWords.forEach(w => { if (refWords.includes(w)) matchCount++; });
+        const wordSim = matchCount / Math.max(userWords.length, refWords.length, 1);
+
+        const maxLen = Math.max(cleanUser.length, cleanRef.length);
+        const dist = levenshteinDistance(cleanUser, cleanRef);
+        const charSim = (maxLen - dist) / maxLen;
+
+        let accuracy = Math.round((wordSim * 0.6 + charSim * 0.4) * 100);
+        accuracy = Math.min(100, Math.max(0, accuracy));
+
+        let status, message, details = "";
+        if (accuracy >= 95) {
+            status = "perfect";
+            message = "🌟 প্রায় নিখুঁত! অনুবাদ অত্যন্ত সঠিক।";
+            details = "Google Translate-এর সাথে প্রায় সম্পূর্ণ মিল রয়েছে।";
+        } else if (accuracy >= 75) {
+            status = "good";
+            message = "✅ ভালো কাজ! অনুবাদ সঠিক।";
+            details = "কিছু শব্দ বা বাক্য গঠনে সামান্য ভিন্নতা রয়েছে।";
+        } else if (accuracy >= 50) {
+            status = "partial";
+            message = "⚠️ আংশিক সঠিক। কিছু অংশ ঠিক আছে।";
+            details = "শব্দচয়ন বা বাক্য গঠন আরও উন্নত করা যায়।";
+        } else {
+            status = "poor";
+            message = "❌ পুনরীক্ষণ প্রয়োজন। অনুবাদটি সঠিক নয়।";
+            details = "Google Translate-এর সাথে মিলিয়ে দেখুন এবং পুনরায় চেষ্টা করুন।";
+        }
+
+        // Performance insight
+        if (accuracy >= 75 && accuracy < 95) {
+            details += " 💡 আপনার অনুবাদ ভালো, কিন্তু কিছু শব্দ বা বাক্য গঠনে উন্নতির সুযোগ আছে।";
+        }
+
+        return { accuracy, status, message, details };
+    }
+
+    function levenshteinDistance(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i-1) === a.charAt(j-1)) {
+                    matrix[i][j] = matrix[i-1][j-1];
+                } else {
+                    matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+    // --- UI: Show Evaluation ---
+    function showEval(message, status, details = "") {
+        evalResult.className = "eval-result";
+        evalResult.style.display = "block";
+        evalResult.classList.add("show", status);
+        evalTitle.innerText = message;
+        evalDetail.innerText = details || "";
+    }
+
+    function clearEval() {
+        evalResult.className = "eval-result";
+        evalResult.style.display = "none";
+        evalTitle.innerText = "";
+        evalDetail.innerText = "";
+    }
+
+    // --- Reset ---
+    function resetPractice() {
+        clearInterval(timer);
+        isRunning = false;
+        isTypingActive = false;
+        typingStartTime = null;
+        bnInput.value = "";
+        targetInput.value = "";
+        clearGoogleAnswer();
+        clearEval();
+        accuracyDisplay.innerText = "—";
+        wpmDisplay.innerText = "০";
+        resetPracticeUI();
+        typingTimerDisplay.style.display = 'none';
+        if (!isFreeMode) {
+            recalculateTime();
+            timerBar.style.width = "100%";
+            timerBar.style.backgroundColor = "var(--accent)";
+            timerBar.style.opacity = "1";
+        } else {
+            timeEstimateDisplay.textContent = '♾️ সীমাহীন';
+            timerBar.style.width = '100%';
+            timerBar.style.backgroundColor = '#6c757d';
+            timerBar.style.opacity = '0.5';
+        }
+        startBtn.disabled = false;
+    }
+
+    function resetPracticeUI() {
+        startBtn.disabled = false;
+        submitBtn.disabled = true;
+        bnInput.disabled = false;
+        targetInput.disabled = true;
+    }
+
+    function toggleAnswer() {
+        answerContent.classList.toggle('visible');
+    }
+
+    // --- History ---
+    function addHistory(bn, typed, time, wpm, acc, status) {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        const statusMap = {
+            perfect: '🌟 নিখুঁত',
+            good: '✅ সঠিক',
+            partial: '⚠️ আংশিক',
+            poor: '❌ পুনরীক্ষণ'
+        };
+        li.innerHTML = `
+            <span><strong>বাংলা:</strong> ${bn.substring(0, 20)}...</span>
+            <span><strong>নির্ভুলতা:</strong> ${acc}% | <strong>সময়:</strong> ${time} | <strong>WPM:</strong> ${wpm}</span>
+            <span class="status-tag ${status}">${statusMap[status] || status}</span>
+        `;
+        historyList.prepend(li);
+    }
+
+    // --- Event Listeners ---
+    targetLang.addEventListener('change', updateLanguageUI);
+    difficulty.addEventListener('change', recalculateTime);
+
+    // Init
+    updateLanguageUI();
+    setMode('timed');
+    recalculateTime();
+</script>
+
+</body>
+</html>
